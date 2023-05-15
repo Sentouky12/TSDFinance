@@ -21,6 +21,14 @@ uint256 public vaultcoll;//Just for test;
 uint256 public idebt;//Just for test;
 uint256 public credit;//Just for test;
  mapping (address => uint) public wards;
+
+    event PriceFeedSet(address);
+    event GranterSet(address);
+    event CollAdd(address,address);
+    event VaultModified(address,address,uint256,uint256,bool,bool);
+    event Confiscate(address,address,address,uint256,uint256 );
+ 
+
     function rely(address usr) external  auth { require(on == 1, "Vat/not-live"); wards[usr] = 1; }
     function deny(address usr) external  auth { require(on == 1, "Vat/not-live"); wards[usr] = 0; }
     modifier auth {
@@ -59,17 +67,19 @@ vaultcoll=vaults[coll][usr].lcoll;
 idebt=vaults[coll][usr].idbt;
 
 }
-
+//Price feed manager that manages multiple price feeds gona change the name of the function later.
 function setPriceFeed(address priceFeed) public auth{
   require(on==1,"VM turned off");
 feed=FeedLike(priceFeed);
 
-
+emit PriceFeedSet(priceFeed);
 }
 
 function setGranter(address _granter) public auth{
   require(on==1,"VM turned off");
 vcg=GranterLike(_granter);
+
+emit GranterSet(_granter);
 
 }
 
@@ -88,6 +98,8 @@ function addColl(address _newcoll,address collFeed) public auth{
   coll.mc=(12*(10**18))/10;//120%
   coll.msc=(15*(10**18))/10;//150%
   colls[_newcoll]=coll;
+
+  emit CollAdd(_newcoll,collFeed);
 }
 
 function tempcollinfo(address coll,address usr) public  {//Function just for test delete it later
@@ -103,8 +115,7 @@ function interact(address _coll, address usr, uint256 wad,bool isWithdrawal) pub
        }else{
         collcredit[_coll][usr]-=wad;
        }
-//coll.tdbt//total system debt we add this in modify when users deposits coll and we give him stable for it  modifies vault
-//coll.tsc//total system collateral we add this in modifiy when isWithdrawal==false users modifies vault
+
     }
 
 function modify(address _coll, address vlt, uint256 collchange,uint256 tsdchange,bool isCollIncrease,bool isDebtIncrease ) public {
@@ -156,6 +167,9 @@ uint256 borrowingfee;
   tsd.burn(msg.sender,tsdchange);
  }
  
+
+emit VaultModified(_coll,vlt,collchange,tsdchange,isCollIncrease,isDebtIncrease);
+
 }
 
 function getBorrowingfee(uint256 tsdchange) public returns(uint){
@@ -215,9 +229,11 @@ collcredit[_coll][liq]+=colx;
 vaults[_coll][vlt]=vault;
 colls[_coll]=coll;
 
+emit Confiscate(_coll,vlt,liq,colx,debtx);
+
 }
 
-//function addcredit()
+
 
 function creditTransfer(address _coll, address from,address to, uint256 howmuch) public auth {
   collcredit[_coll][from]-=howmuch;
@@ -229,13 +245,6 @@ function updateprice(address _coll) public auth{
   colls[_coll].price=feed.getprice(_coll,dec);
 }
 
-   // function modify(address _coll, address usr, int256 wad,bool isWithdrawal) external  auth {
-      // if(isWithdrawal==false){
-       // gem[ilk][usr]+=wad;
-      // }else{
-      //  gem[ilk][usr]-=wad;
-     //  }
-
-  //  }
+  
 
 }

@@ -60,6 +60,9 @@ mapping(address => Coll) public liqcolls;
 mapping (address => uint) public wards;
  uint256[] public forsale;
  uint256 public id;
+
+event Repossess(address,address,address);
+event SaleStarted(address,uint256,uint256,address,address);
     function rely(address usr) external  auth { require(on == 1, "Vat/not-live"); wards[usr] = 1; }
     function deny(address usr) external  auth { require(on == 1, "Vat/not-live"); wards[usr] = 0; }
     modifier auth {
@@ -98,7 +101,7 @@ Vars memory vars;
 uint256 debtx;uint256 collx;uint256 collvx;uint256 tdebtx;
 (vars.icoll,vars.idebt)= vm.vaults(_coll,vlt);
 (,vars.price,vars.mc, ,vars.msc,vars._100perc,)= vm.colls(_coll);
-  vars.price=10000000000000000000;
+  //vars.price=10000000000000000000;
 uint256 ICR=TSDMath._computeCR(vars.icoll,vars.idebt,vars.price);
   require(ICR<=vars.mc,"Cannot liquidate a safe vault");
 
@@ -121,8 +124,8 @@ vars.collx=(vars.debtx*10**18/vars.price);
 vm.confiscate(_coll,vlt,address(this),vars.collx,vars.debtx);
 this.startSale(_coll,vars.debtx,vars.collx,vlt,taker);
 
+emit Repossess(_coll,vlt,taker);
 }
-//function 
 
 function startSale(address _coll,uint256 debtx,uint256 collx, address vlt,address incentives) public auth{
 require(on==1,"Debt collector turned off");
@@ -130,8 +133,8 @@ require(debtx > 0);
 require(collx > 0);
 require(vlt!=address(0));
 
-//uint256 price= feed.getprice(_coll,18);
-uint256 price=10000000000000000000;
+uint256 price= feed.getprice(_coll,18);
+//uint256 price=10000000000000000000;
 
 
 forsale.push(id);
@@ -145,14 +148,14 @@ uint256 reward=debtx*10/100;
 tsd.mint(incentives,reward);
 id++;
 
-//emit startSale;
+emit SaleStarted(_coll,debtx,collx,vlt,incentives);
 }
 
 function buy(uint256 id,uint256 amount,uint256 maxprice,address rcvr) public {
 require(on==1,"Debt collector turned off");
 address coll=sales[id].coll;
-//uint256 price=feed.getprice(coll,18);
-uint256 price=10000000000000000000;
+uint256 price=feed.getprice(coll,18);
+//uint256 price=10000000000000000000;
 uint256 needed=sales[id].needed;
 uint256 available=sales[id].available;
 address user=sales[id].usr;
@@ -183,44 +186,6 @@ forsale.pop();
 }
 
 
-// function kick(
-      //  uint256 tab,  // Debt                   [rad]
-      //  uint256 lot,  // Collateral             [wad]
-      //  address usr,  // Address that will receive any leftover collateral
-      //  address kpr   // Address that will receive incentives
-  //  ) external auth lock isStopped(1) returns (uint256 id) {
-        // Input validation
-      //  require(tab  >          0, "Clipper/zero-tab");
-     //   require(lot  >          0, "Clipper/zero-lot");
-      //  require(usr != address(0), "Clipper/zero-usr");
-      //  id = ++kicks;
-      //  require(id   >          0, "Clipper/overflow");
-
-      //  active.push(id);
-
-      //  sales[id].pos = active.length - 1;
-
-      //  sales[id].tab = tab;
-      //  sales[id].lot = lot;
-      //  sales[id].usr = usr;
-     //   sales[id].tic = uint96(block.timestamp);
-
-      //  uint256 top;
-      //  top = rmul(getFeedPrice(), buf);
-      //  require(top > 0, "Clipper/zero-top-price");
-     //   sales[id].top = top;
-
-        // incentive to kick auction
-      //  uint256 _tip  = tip;
-      //  uint256 _chip = chip;
-      //  uint256 coin;
-      //  if (_tip > 0 || _chip > 0) {
-      //      coin = add(_tip, wmul(tab, _chip));
-      //      vat.suck(vow, kpr, coin);
-     //   }
-
-      //  emit Kick(id, top, tab, lot, usr, kpr, coin);
-  //  }
 
 function turnoff() public auth{
     on=0;

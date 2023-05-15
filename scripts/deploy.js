@@ -133,26 +133,26 @@ var individualcoll=await vm.incoll();
 console.log("Individual coll after borrowing is "+ individualcoll);
 var vaultinfo=await vm.vaults(king.address,'0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
 console.log("Before liquidation "+vaultinfo);
-await collector.repossess(king.address,'0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',mpool.address);
+//await collector.repossess(king.address,'0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',mpool.address);
 
 // address _logic,
  //address admin_,
  //bytes memory _data
 
-var sale=await collector.sales(0);
-console.log(sale);
+//var sale=await collector.sales(0);
+//console.log(sale);
 
-var balancebeforebuy=await tsd.balanceOf('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
-console.log('Balance before buy '+balancebeforebuy);
-var creditinfo=await vm.collcredit(king.address,'0x70997970C51812dc3A010C7d01b50e0d17dc79C8');
-console.log('Coll credit before buying '+creditinfo);
-await collector.buy(0,'457820000000000000000','10000000000000000000','0x70997970C51812dc3A010C7d01b50e0d17dc79C8');
-var balanceafterbuy=await tsd.balanceOf('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
-console.log('Balance after buy '+balanceafterbuy); 
-var vaultinfo=await vm.vaults(king.address,'0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
-console.log("After liquidation "+vaultinfo);
-var creditinfo=await vm.collcredit(king.address,'0x70997970C51812dc3A010C7d01b50e0d17dc79C8');
-console.log('Coll credit after buying '+creditinfo);
+//var balancebeforebuy=await tsd.balanceOf('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
+//console.log('Balance before buy '+balancebeforebuy);
+//var creditinfo=await vm.collcredit(king.address,'0x70997970C51812dc3A010C7d01b50e0d17dc79C8');
+//console.log('Coll credit before buying '+creditinfo);
+//await collector.buy(0,'457820000000000000000','10000000000000000000','0x70997970C51812dc3A010C7d01b50e0d17dc79C8');
+//var balanceafterbuy=await tsd.balanceOf('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
+//console.log('Balance after buy '+balanceafterbuy); 
+//var vaultinfo=await vm.vaults(king.address,'0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
+//console.log("After liquidation "+vaultinfo);
+//var creditinfo=await vm.collcredit(king.address,'0x70997970C51812dc3A010C7d01b50e0d17dc79C8');
+//console.log('Coll credit after buying '+creditinfo);
 //var proxybalance = await hre.ethers.getContractAt("contract name",proxy.address);
 
 
